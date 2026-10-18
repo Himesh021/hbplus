@@ -1,56 +1,54 @@
-# Welcome to your Expo app 👋
+# HBPlus Authentication
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An Expo and React Native app for HBPlus team sign-in with Google OAuth and Supabase. Access is restricted to verified `@hbplus.fit` email accounts.
 
-## Get started
+## Requirements
 
-1. Install dependencies
+- Node.js 22.13 or newer
+- npm
+- A Supabase project with Google authentication configured
 
-   ```bash
-   npm install
+## Local setup
+
+1. Install dependencies:
+
+   ```sh
+   npm ci
    ```
 
-2. Start the app
+2. Copy `.env.example` to `.env` and provide your Supabase project URL and publishable key. Keep `.env` local; it is excluded from Git.
 
-   ```bash
-   npx expo start
+3. Start the app:
+
+   ```sh
+   npm run web
    ```
 
-In the output, you'll find options to open the app in a
+   Use `npm start` to open the Expo development menu for Android and iOS.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Supabase and Google OAuth
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Enable Google as an authentication provider in Supabase and configure its Google OAuth client credentials in the Supabase dashboard.
+- Add the Supabase Auth callback URL shown in the Google provider settings to the Google OAuth client's authorized redirect URIs.
+- Add your local app callback (for example, `http://localhost:8081/auth/callback`) and deployed callback URL to Supabase's allowed redirect URLs.
+- The app exchanges the OAuth PKCE code in `src/app/auth/callback.tsx` and only authorizes verified `@hbplus.fit` accounts. The dashboard redirects users without an authorized session back to login.
 
-## Get a fresh project
+## Web deployment
 
-When you're ready, run:
+Netlify builds the static Expo Router export using `netlify.toml`. Set `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the Netlify site's environment variables, then deploy the site. The build command is:
 
-```bash
-npm run reset-project
+```sh
+npm run build:web
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+The generated `dist/` directory is a build artifact and is ignored by Git.
 
-### Other setup steps
+## Project layout
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```text
+src/
+  app/          Expo Router screens and layouts
+  lib/          Supabase client
+  providers/    Authentication state and actions
+assets/         App icons and splash assets
+```
